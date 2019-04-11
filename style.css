@@ -1,6 +1,12 @@
-canvas 
+body {
+	background: midnightblue;
+}
+
+#gameCanvas 
 {
+	display: block;
 	width: 640px;
 	height: 480px;
-	background: white;
+	margin: auto;
+	background: green;
 }
