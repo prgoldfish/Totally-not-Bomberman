@@ -1,8 +1,9 @@
-window.addEventListener("load", () => {
-    let images = loadImages();
+window.addEventListener("load", async () => {
+    let images = await loadImages();
+    console.log(images);
 });
 
-function loadImages() {
+async function loadImages() {
     let images = {};
     let imageNames = ["wallTopDown", 
         "wallLeft",
@@ -11,9 +12,19 @@ function loadImages() {
         "wallCornerRight"
     ];
     for (const name of imageNames) { //Essayer de voir l'utilisation de promesses pour attendre le chargement de l'image
-        images[name] = new Image();
-        images[name].src = "images/" + name  + ".png";
+        images[name] = await loadImage(name);
     }
 
     return images;
+}
+
+function loadImage(imgName)
+{
+    return new Promise((success, fail) => {
+        let img = new Image();
+        img.addEventListener("load", () => {
+            success(img);
+        });
+        img.src = "images/" + imgName  + ".png";
+    });
 }
