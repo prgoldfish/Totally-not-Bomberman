@@ -1,7 +1,12 @@
 window.addEventListener("load", async () => {
     let images = await loadImages();
     console.log(images);
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
+
 });
+
+
 
 async function loadImages() {
     let images = {};
