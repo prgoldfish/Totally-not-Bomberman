@@ -1,12 +1,13 @@
 window.addEventListener("load", async () => {
     let images = await loadImages();
     console.log(images);
-    let canvas = document.getElementById("gameCanvas");
-    let ctx = canvas.getContext("2d");
-
+	let canvas = document.getElementById("gameCanvas");
+	canvas.width = 320;
+	canvas.height = 240;
+	let ctx = canvas.getContext("2d");
+	console.log(canvas);
+	drawBackground(ctx, images);
 });
-
-
 
 async function loadImages() {
     let images = {};
@@ -58,4 +59,19 @@ function loadImage(imgName)
         });
         img.src = "images/" + imgName  + ".png";
     });
+}
+
+function drawBackground(ctx, images){
+	ctx.fillStyle = ctx.createPattern(images["ground"], "repeat");
+	ctx.fillRect(0, 0, 320, 240);
+	ctx.fillStyle = ctx.createPattern(images["wallTopDown"], "repeat");
+	ctx.fillRect(0, 0, 320, 16);
+	ctx.fillStyle = ctx.createPattern(images["wallLeft"], "repeat");
+	ctx.fillRect(0, 0, 16, 240);
+	ctx.fillStyle = ctx.createPattern(images["wallRight"], "repeat");
+	ctx.fillRect(304, 0, 16, 240);
+	ctx.fillStyle = ctx.createPattern(images["wallTopDown"], "repeat");
+	ctx.fillRect(0, 224, 320, 16);
+	ctx.drawImage(images["wallCornerLeft"], 0, 0, 16, 16);
+	ctx.drawImage(images["wallCornerRight"], 304, 0, 16, 16);
 }
