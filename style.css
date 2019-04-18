@@ -1,15 +1,47 @@
 body {
+	margin: 0;
 	background: midnightblue;
+	font-family: "Comic Sans MS", cursive, sans-serif;
 }
 
 #gameCanvas 
 {
 	display: block;
-	width: 640px;
-	height: 480px;
+	width: 100vmin;
 	margin: auto;
 	background: green;
 	image-rendering: -moz-crisp-edges;
 	image-rendering: crisp-edges;
 	image-rendering: pixelated;
+}
+
+#title
+{
+	text-align: center;
+	color: orange;
+}
+
+#titleBomb
+{
+	transform: scale(2);
+	margin: 5px;
+}
+
+#title h1{
+	text-decoration: line-through;
+}
+
+#title h2{
+	position: relative;
+	display: inline-block;
+	transform: translate(-100%, 100%) rotate(-10deg);
+}
+
+#title h2::after{
+	content: "v";
+	position: absolute;
+	bottom: -100%;
+	right: 50%;
+	color: red;
+	transform: translate(50%, 0);
 }
