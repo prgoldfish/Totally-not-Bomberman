@@ -5,7 +5,6 @@ window.addEventListener("load", async () => {
 	canvas.width = 320;
 	canvas.height = 240;
 	let ctx = canvas.getContext("2d");
-	console.log(canvas);
 	drawBackground(ctx, images);
 });
 
@@ -61,6 +60,7 @@ function loadImage(imgName)
     });
 }
 
+//dessine le sol et les murs
 function drawBackground(ctx, images){
 	ctx.fillStyle = ctx.createPattern(images["ground"], "repeat");
 	ctx.fillRect(0, 0, 320, 240);
