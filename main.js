@@ -1,7 +1,7 @@
 window.addEventListener("load", async () => {
     let images = await loadImages();
     console.log(images);
-    let canvas = document.getElementById("canvas");
+    let canvas = document.getElementById("gameCanvas");
     let ctx = canvas.getContext("2d");
 
 });
@@ -16,14 +16,15 @@ async function loadImages() {
         "wallCornerLeft",
         "wallCornerRight",
         "ground",
+		"char",
         "box",
         "bomb",
-        "bombFuse"
+		"bombFuse"
     ];
     for (const name of imageNames) { //Essayer de voir l'utilisation de promesses pour attendre le chargement de l'image
         images[name] = await loadImage(name);
     }
-    images = await loadCharImages(images);
+    //images = await loadCharImages(images);
     images = await loadExplImages(images);
 
     return images;
