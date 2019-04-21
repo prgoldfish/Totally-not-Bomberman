@@ -4,74 +4,41 @@ window.addEventListener("load", async () => {
 	let canvas = document.getElementById("gameCanvas");
 	canvas.width = 320;
 	canvas.height = 240;
-	let ctx = canvas.getContext("2d");
+    let ctx = canvas.getContext("2d");
 	drawBackground(ctx, images);
 });
 
 async function loadImages() {
-    let images = {};
-    let imageNames = ["wallTopDown", 
-        "wallLeft",
-        "wallRight",
-        "wallCornerLeft",
-        "wallCornerRight",
-        "ground",
-		"char",
-        "box",
-        "bomb",
-		"bombFuse"
-    ];
-    for (const name of imageNames) { //Essayer de voir l'utilisation de promesses pour attendre le chargement de l'image
-        images[name] = await loadImage(name);
-    }
-    //images = await loadCharImages(images);
-    images = await loadExplImages(images);
-
-    return images;
+    return {
+        block : await loadImageToCanvas("block"),
+        bomb : await loadBomb(),
+        box : await loadImageToCanvas("box"),
+        char : await loadCharacter(),
+        expl : await loadExplosions(),
+        ground : await loadImageToCanvas("ground"),
+        walls : await loadWalls()
+    };
 }
 
-async function loadCharImages(images)
-{
-    let dir = ["up", "down", "right", "left"];
-    for (const name of dir) {
-        images["char" + name] = await loadImage("char/" + name);
-        images["char" + name + "W"] = await loadImage("char/" + name + "W");
-    }
-    return images;
-}
 
-async function loadExplImages(images)
-{
-    let dir = ["up", "down", "right", "left", "horiz", "vert", "center"];
-    for (const name of dir) {
-        images["expl" + name] = await loadImage("explosion/" + name);
-    }
-    return images;
-}
-
-function loadImage(imgName)
-{
-    return new Promise((success, fail) => {
-        let img = new Image();
-        img.addEventListener("load", () => {
-            success(img);
-        });
-        img.src = "images/" + imgName  + ".png";
-    });
-}
 
 //dessine le sol et les murs
 function drawBackground(ctx, images){
-	ctx.fillStyle = ctx.createPattern(images["ground"], "repeat");
-	ctx.fillRect(0, 0, 320, 240);
-	ctx.fillStyle = ctx.createPattern(images["wallTopDown"], "repeat");
-	ctx.fillRect(0, 0, 320, 16);
-	ctx.fillStyle = ctx.createPattern(images["wallLeft"], "repeat");
-	ctx.fillRect(0, 0, 16, 240);
-	ctx.fillStyle = ctx.createPattern(images["wallRight"], "repeat");
-	ctx.fillRect(304, 0, 16, 240);
-	ctx.fillStyle = ctx.createPattern(images["wallTopDown"], "repeat");
-	ctx.fillRect(0, 224, 320, 16);
-	ctx.drawImage(images["wallCornerLeft"], 0, 0, 16, 16);
-	ctx.drawImage(images["wallCornerRight"], 304, 0, 16, 16);
+    let walls = images["walls"];
+    let width = ctx.canvas.width; // Largeur du canvas
+    let height = ctx.canvas.height; // Hauteur du canvas
+    let blockSize = images["ground"].width; // Taille d'une case
+
+    ctx.fillStyle = ctx.createPattern(images["ground"], "repeat");
+    ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = walls.pattern(ctx, "topDown", 0, "repeat");
+    ctx.fillRect(0, 0, width, blockSize);
+    ctx.fillStyle = walls.pattern(ctx, "left", 0, "repeat");
+    ctx.fillRect(0, 0, blockSize, height);
+    ctx.fillStyle = walls.pattern(ctx, "right", 0, "repeat");
+    ctx.fillRect(width - blockSize, 0, blockSize, height);
+    ctx.fillStyle = walls.pattern(ctx, "topDown", 0, "repeat");
+    ctx.fillRect(0, height - blockSize, width, blockSize);
+    walls.draw(ctx, 0, 0, "cornerLeft", 0);
+    walls.draw(ctx, width.blockSize, 0, "cornerRight", 0);
 }
