@@ -1,6 +1,7 @@
 class Level{
 	//constructeur exemple, a generer depuis un fichier passé en paramètre
 	constructor(){
+		//tableau de cases d'une taille de 19x13
 		this.map = [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					[0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0],
 					[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],

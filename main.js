@@ -34,7 +34,7 @@ function drawLevel(ctx, images, level){
                     ctx.drawImage(images["box"], posX, posY, blockSize, blockSize);
                     break;
                 case 2:
-                ctx.drawImage(images["block"], posX, posY, blockSize, blockSize);
+                    ctx.drawImage(images["block"], posX, posY, blockSize, blockSize);
                     break;
             }
         }
