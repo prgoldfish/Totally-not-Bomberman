@@ -2,7 +2,7 @@ window.addEventListener("load", async () => {
     let images = await loadImages();
     console.log(images);
 	let canvas = document.getElementById("gameCanvas");
-	canvas.width = 320;
+	canvas.width = 336;
 	canvas.height = 240;
     let ctx = canvas.getContext("2d");
     drawBackground(ctx, images);
@@ -27,7 +27,7 @@ function drawLevel(ctx, images, level){
     let blockSize = images["ground"].width; // Taille d'une case
     for(let y = 0; y < 13; y++){
         for(let x = 0; x < 19; x++){
-            let posX = blockSize * (x + 0.5);
+            let posX = blockSize * (x + 1);
             let posY = blockSize * (y + 1);
             switch (level.map[y][x]){
                 case 1:
