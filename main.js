@@ -5,7 +5,9 @@ window.addEventListener("load", async () => {
 	canvas.width = 320;
 	canvas.height = 240;
     let ctx = canvas.getContext("2d");
-	drawBackground(ctx, images);
+    drawBackground(ctx, images);
+    let level = new Level();
+    drawLevel(ctx, images, level);
 });
 
 async function loadImages() {
@@ -20,7 +22,24 @@ async function loadImages() {
     };
 }
 
-
+// dessine le contenu du niveau
+function drawLevel(ctx, images, level){
+    let blockSize = images["ground"].width; // Taille d'une case
+    for(let y = 0; y < 13; y++){
+        for(let x = 0; x < 19; x++){
+            let posX = blockSize * (x + 0.5);
+            let posY = blockSize * (y + 1);
+            switch (level.map[y][x]){
+                case 1:
+                    ctx.drawImage(images["box"], posX, posY, blockSize, blockSize);
+                    break;
+                case 2:
+                ctx.drawImage(images["block"], posX, posY, blockSize, blockSize);
+                    break;
+            }
+        }
+    }
+}
 
 //dessine le sol et les murs
 function drawBackground(ctx, images){
@@ -40,5 +59,5 @@ function drawBackground(ctx, images){
     ctx.fillStyle = walls.pattern(ctx, "topDown", 0, "repeat");
     ctx.fillRect(0, height - blockSize, width, blockSize);
     walls.draw(ctx, 0, 0, "cornerLeft", 0);
-    walls.draw(ctx, width.blockSize, 0, "cornerRight", 0);
+    walls.draw(ctx, width - blockSize, 0, "cornerRight", 0);
 }
