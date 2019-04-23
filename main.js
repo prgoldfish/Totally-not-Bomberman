@@ -8,11 +8,29 @@ window.addEventListener("load", async () => {
     //drawBackground(ctx, images);
     let level = new Level();
     level.init(lvl);
-    drawLevel(ctx, images, level);
+    player = new Character(level.playerSpawn, images["block"].width);
+    drawLevel(ctx, images, level, player);
+    //TEST: revele la sortie et fait tourner le personnage après 5 secondes
     window.setTimeout(() => {
         level.map[10][16].destroyed = true;
-        drawLevel(ctx, images, level);
-    }, 10000);
+        player.turn(directions.EAST);
+        drawLevel(ctx, images, level, player);
+        console.log(level.map);
+        console.log(player.mov);
+    }, 5000);
+    //TEST: deplace le personnage après 6 secondes
+    window.setTimeout(() => {
+        player.move();
+        drawLevel(ctx, images, level, player);
+        console.log(level.map);
+        console.log(player.mov);
+    }, 6000);
+    //TEST: met a jour le personnage a intervalles reguliers
+    window.setInterval(function(){
+        player.update();
+        drawLevel(ctx, images, level, player);
+        console.log(player.mov);
+    }, 1000/60);
 });
 
 async function loadImages() {
@@ -29,11 +47,11 @@ async function loadImages() {
 }
 
 // dessine le contenu du niveau
-function drawLevel(ctx, images, level){
+function drawLevel(ctx, images, level, character){
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     drawBackground(ctx, images);
-    let blockSize = images["ground"].width; // Taille d'une case
-    console.log(level.map);
+    drawCharacter(ctx, images, character);
+    let blockSize = images["block"].width; // Taille d'une case
     for(let y = 0; y < level.height; y++){
         for(let x = 0; x < level.width; x++){
             let posX = blockSize * (x + 1);
@@ -45,7 +63,7 @@ function drawLevel(ctx, images, level){
                     {
                         ctx.drawImage(images["box"], posX, posY, blockSize, blockSize);
                     }
-                   break;
+                    break;
                 case caseTypes.BLOCK:
                     ctx.drawImage(images["block"], posX, posY, blockSize, blockSize);
                     break;
@@ -69,7 +87,7 @@ function drawBackground(ctx, images){
     let walls = images["walls"];
     let width = ctx.canvas.width; // Largeur du canvas
     let height = ctx.canvas.height; // Hauteur du canvas
-    let blockSize = images["ground"].width; // Taille d'une case
+    let blockSize = images["block"].width; // Taille d'une case
 
     ctx.fillStyle = ctx.createPattern(images["ground"], "repeat");
     ctx.fillRect(0, 0, width, height);
@@ -83,4 +101,32 @@ function drawBackground(ctx, images){
     ctx.fillRect(0, height - blockSize, width, blockSize);
     walls.draw(ctx, 0, 0, "cornerLeft", 0);
     walls.draw(ctx, width - blockSize, 0, "cornerRight", 0);
+}
+
+//dessine le personnage
+function drawCharacter(ctx, images, character){
+    let blockSize = images["block"].width; // Taille d'une case
+    let step = 0;
+    switch(character.direction){
+        case directions.NORTH:
+            posX = blockSize * (character.coords[0] + 1);
+            posY = blockSize * (character.coords[1] + 1) - character.mov;
+            images["char"].draw(ctx, posX, posY, "north", step);
+            break;
+        case directions.EAST:
+            posX = blockSize * (character.coords[0] + 1) + character.mov;
+            posY = blockSize * (character.coords[1] + 1);
+            images["char"].draw(ctx, posX, posY, "east", 3 - step);
+            break;
+        case directions.SOUTH:
+            posX = blockSize * (character.coords[0] + 1);
+            posY = blockSize * (character.coords[1] + 1) + character.mov;
+            images["char"].draw(ctx, posX, posY, "south", step);
+            break;
+        case directions.WEST:
+            posX = blockSize * (character.coords[0] + 1) - character.mov;
+            posY = blockSize * (character.coords[1] + 1);
+            images["char"].draw(ctx, posX, posY, "west", step);
+            break;
+    }
 }

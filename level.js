@@ -15,9 +15,9 @@ class Level{
 					[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
 					[0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 1, 2, 0],
 					[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0]];
-		//coordonnées de la sortie
-		this.exitX = 17;
-		this.exitY = 11;*/
+		*/
+		//coordonnées du spawn (en haut à gauche par défaut)
+		this.playerSpawn = [0, 0];
 		this.width = 19;
 		this.height = 13;
 		this.map = [];
@@ -50,7 +50,7 @@ class Level{
 		}
 		this.putOnMap(lvl.Exit, caseTypes.EXIT);
 		this.putOnMap(lvl.PlayerSpawn, caseTypes.PLAYERSPAWN);
-
+		this.playerSpawn = lvl.PlayerSpawn;
 	}
 
 	putOnMap(coords, typeCase)
@@ -67,12 +67,12 @@ class Level{
 
 	static checkLevel(level)
 	{
-		if(level.Boxes === undefined || level.Boxes.length <= 0) // Au moins une boite
+		if(level.Boxes === undefined)
 		{
 			console.log("Boites");
 			return false;
 		}
-		if(level.Blocks === undefined || level.Blocks.length <= 0) // Au moins un bloc
+		if(level.Blocks === undefined)
 		{
 			console.log("Blocs");
 			return false;
