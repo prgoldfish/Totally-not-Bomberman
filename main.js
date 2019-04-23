@@ -5,9 +5,14 @@ window.addEventListener("load", async () => {
 	canvas.width = 336;
 	canvas.height = 240;
     let ctx = canvas.getContext("2d");
-    drawBackground(ctx, images);
+    //drawBackground(ctx, images);
     let level = new Level();
+    level.init(lvl);
     drawLevel(ctx, images, level);
+    window.setTimeout(() => {
+        level.map[10][16].destroyed = true;
+        drawLevel(ctx, images, level);
+    }, 10000);
 });
 
 async function loadImages() {
@@ -18,24 +23,42 @@ async function loadImages() {
         char : await loadCharacter(),
         expl : await loadExplosions(),
         ground : await loadImageToCanvas("ground"),
+        stairs : await loadImageToCanvas("stairs"),
         walls : await loadWalls()
     };
 }
 
 // dessine le contenu du niveau
 function drawLevel(ctx, images, level){
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    drawBackground(ctx, images);
     let blockSize = images["ground"].width; // Taille d'une case
-    for(let y = 0; y < 13; y++){
-        for(let x = 0; x < 19; x++){
+    console.log(level.map);
+    for(let y = 0; y < level.height; y++){
+        for(let x = 0; x < level.width; x++){
             let posX = blockSize * (x + 1);
             let posY = blockSize * (y + 1);
-            switch (level.map[y][x]){
-                case 1:
-                    ctx.drawImage(images["box"], posX, posY, blockSize, blockSize);
-                    break;
-                case 2:
+            let lvlCase = level.map[y][x];
+            switch (lvlCase.type){
+                case caseTypes.BOX:
+                    if(!lvlCase.destroyed)
+                    {
+                        ctx.drawImage(images["box"], posX, posY, blockSize, blockSize);
+                    }
+                   break;
+                case caseTypes.BLOCK:
                     ctx.drawImage(images["block"], posX, posY, blockSize, blockSize);
                     break;
+                case caseTypes.EXIT:
+                    if(!lvlCase.destroyed)
+                    {
+                        ctx.drawImage(images["box"], posX, posY, blockSize, blockSize);
+                    }
+                    else
+                    {
+                        ctx.drawImage(images["stairs"], posX, posY, blockSize, blockSize);
+                    }
+                   break;
             }
         }
     }
