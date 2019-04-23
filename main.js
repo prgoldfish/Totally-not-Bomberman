@@ -16,20 +16,17 @@ window.addEventListener("load", async () => {
         player.turn(directions.EAST);
         drawLevel(ctx, images, level, player);
         console.log(level.map);
-        console.log(player.mov);
     }, 5000);
     //TEST: deplace le personnage après 6 secondes
     window.setTimeout(() => {
         player.move();
         drawLevel(ctx, images, level, player);
         console.log(level.map);
-        console.log(player.mov);
     }, 6000);
     //TEST: met a jour le personnage a intervalles reguliers
     window.setInterval(function(){
         player.update();
         drawLevel(ctx, images, level, player);
-        console.log(player.mov);
     }, 1000/60);
 });
 
@@ -107,6 +104,10 @@ function drawBackground(ctx, images){
 function drawCharacter(ctx, images, character){
     let blockSize = images["block"].width; // Taille d'une case
     let step = 0;
+    if(character.mov > 0){
+        step = Math.floor(character.mov * 4 / blockSize);
+        console.log(step);
+    }
     switch(character.direction){
         case directions.NORTH:
             posX = blockSize * (character.coords[0] + 1);
