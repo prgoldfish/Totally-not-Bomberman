@@ -1,6 +1,6 @@
 class Level{
 	//constructeur exemple, a generer depuis un fichier passé en paramètre
-	constructor(){
+	constructor(blockSize){
 		//tableau de cases d'une taille de 19x13
 		/*this.map = [[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 					[0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0, 2, 0],
@@ -22,6 +22,8 @@ class Level{
 		this.height = 13;
 		this.map = [];
 		this.bombs = [];
+		this.explosions = [];
+		this.blockSize = blockSize;
 		for (let i = 0; i < this.height; i++) { // Imitialisation par défaut du niveau (Que de l'herbe)
 			let line = [];
 			for (let j = 0; j < this.width; j++) {
@@ -29,8 +31,6 @@ class Level{
 			}
 			this.map.push(line);
 		}
-		console.log(this.map);
-		console.log(JSON.parse(JSON.stringify(lvl)));
 	}
 
 	init(lvlName)
@@ -70,22 +70,22 @@ class Level{
 	{
 		if(level.Boxes === undefined)
 		{
-			console.log("Boites");
+			console.log("Boites invalides");
 			return false;
 		}
 		if(level.Blocks === undefined)
 		{
-			console.log("Blocs");
+			console.log("Blocs invalides");
 			return false;
 		}
 		if(level.Exit === undefined || level.Exit.length !== 2) // La sortie a 2 coordonnées
 		{
-			console.log("Exit");
+			console.log("Exit invalide");
 			return false;
 		}
 		if(level.PlayerSpawn === undefined || level.PlayerSpawn.length !== 2) // Le spawn du joueur a 2 coordonnées
 		{
-			console.log("Spawn");
+			console.log("Spawn invalide");
 			return false;
 		}
 		return true;
@@ -102,6 +102,12 @@ class Level{
 		}
 		return false;
 	}
+
+	mapToCanvas(coord) // Traduit une coordonnée du niveau en coordonée du canvas
+	{
+		coord++; // Décalage à cause des murs
+		return coord * this.blockSize;
+	}
 };
 
 class Case
@@ -110,6 +116,26 @@ class Case
 	{
 		this.type = typeCase;
 		this.destroyed = false;
+	}
+
+	canBlock()
+	{
+		switch(this.type)
+		{
+			case caseTypes.GROUND:
+			case caseTypes.PLAYERSPAWN:
+				return false;
+			
+			case caseTypes.BOX:
+			case caseTypes.EXIT:
+				return !this.destroyed;
+
+			case caseTypes.BLOCK:
+				return true;
+			
+			default:
+				return false;
+		}
 	}
 }
 
@@ -146,4 +172,123 @@ class Bombe
 	}
 }
 
-console.log(JSON.stringify(caseTypes));
+class Explosion
+{
+	constructor(x, y, level, actualTime, explSize)
+	{
+		this.explArea = {
+			"North" : 0,
+			"West" : 0,
+			"East" : 0,
+			"South" : 0
+		};
+		this.x = x;
+		this.y = y;
+		for (let i = 1; i <= explSize; i++) {
+			
+			if((this.x + i) < level.width && !level.map[y][this.x + i].canBlock())
+			{
+				this.explArea["East"]++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		for (let i = 1; i <= explSize; i++) {
+			
+			if((this.x - i) >=0 && !level.map[y][this.x - i].canBlock())
+			{
+				this.explArea["West"]++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		for (let i = 1; i <= explSize; i++) {
+			
+			if((this.y + i) < level.height && !level.map[this.y + i][x].canBlock())
+			{
+				this.explArea["South"]++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		for (let i = 1; i <= explSize; i++) {
+			
+			if((this.y - i) >= 0 && !level.map[this.y - i][x].canBlock())
+			{
+				this.explArea["North"]++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		this.explTime = actualTime;
+	}
+
+	inArea(coords)
+	{
+		let minX = this.x - this.explArea["West"];
+		let maxX = this.x + this.explArea["East"];
+		let minY = this.y - this.explArea["North"];
+		let maxY = this.y + this.explArea["South"];
+
+		if(minX <= coords[0] && maxX >= coords[0] && this.y == coords[1])
+		{
+			return true; // Dans la ligne horizontale de l'explosion
+		}
+		if(minY <= coords[1] && maxY >= coords[1] && this.x == coords[0])
+		{
+			return true; // Dans la ligne verticale de l'explosion
+		}
+
+		return false;
+	}
+
+	draw(ctx, sprite, level, blockSize)
+	{
+		let minX = this.x - this.explArea["West"];
+		let maxX = this.x + this.explArea["East"];
+		let minY = this.y - this.explArea["North"];
+		let maxY = this.y + this.explArea["South"];
+
+		// Dessin du centre
+		sprite.draw(ctx, level.mapToCanvas(this.x), level.mapToCanvas(this.y), "center", 0);
+		
+		// Dessin des 4 branches de l'explosion
+		ctx.fillStyle = sprite.pattern(ctx, "horizontal", 0, "repeat");
+
+		if(this.explArea["West"] > 0)
+		{
+			ctx.fillRect(level.mapToCanvas(minX + 1), level.mapToCanvas(this.y), (this.explArea["West"] - 1) * blockSize, blockSize);
+			sprite.draw(ctx, level.mapToCanvas(minX), level.mapToCanvas(this.y), "left", 0);
+		}
+		if(this.explArea["East"] > 0)
+		{
+			ctx.fillRect(level.mapToCanvas(this.x + 1), level.mapToCanvas(this.y), (this.explArea["East"] - 1) * blockSize, blockSize);
+			sprite.draw(ctx, level.mapToCanvas(maxX), level.mapToCanvas(this.y), "right", 0);
+		}
+		
+		
+		ctx.fillStyle = sprite.pattern(ctx, "vertical", 0, "repeat");
+		if(this.explArea["North"] > 0)
+		{
+			ctx.fillRect(level.mapToCanvas(this.x), level.mapToCanvas(minY + 1), blockSize, (this.explArea["North"] - 1) * blockSize);
+			sprite.draw(ctx, level.mapToCanvas(this.x), level.mapToCanvas(minY), "up", 0);
+		}
+		if(this.explArea["South"] > 0)
+		{
+			ctx.fillRect(level.mapToCanvas(this.x), level.mapToCanvas(this.y + 1), blockSize, (this.explArea["South"] - 1) * blockSize);
+			sprite.draw(ctx, level.mapToCanvas(this.x), level.mapToCanvas(maxY), "down", 0);
+		}
+	}
+}

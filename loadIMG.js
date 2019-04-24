@@ -89,8 +89,8 @@ async function loadExplosions()
         center : [cnvList[2]],
         right : [cnvList[3]],
         up : [cnvList[4]],
-        down : [cnvList[5]],
-        vertical : [cnvList[6]]
+        vertical : [cnvList[5]],
+        down : [cnvList[6]]
     }
     return new Sprite(frames);
 }

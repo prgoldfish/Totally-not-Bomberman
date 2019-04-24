@@ -2,13 +2,13 @@ let frame = 0;
 
 window.addEventListener("load", async () => {
     let images = await loadImages();
-    console.log(images);
+    //console.log(images);
 	let canvas = document.getElementById("gameCanvas");
 	canvas.width = 336;
 	canvas.height = 240;
     let ctx = canvas.getContext("2d");
     //drawBackground(ctx, images);
-    let level = new Level();
+    let level = new Level(images["block"].width);
     level.init(lvl);
     player = new Character(level.playerSpawn, images["block"].width);
     drawLevel(ctx, images, level, player);
@@ -29,6 +29,7 @@ window.addEventListener("load", async () => {
         //console.log("Loop");
         characterInput(input, player);
         updateBombs(input, level, player, time);
+        updateExplosions(level, player, time);
         player.update();
 
         drawLevel(ctx, images, level, player);
@@ -74,7 +75,6 @@ async function loadImages() {
 function drawLevel(ctx, images, level, character){
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     drawBackground(ctx, images);
-    drawCharacter(ctx, images, character);
     let blockSize = images["block"].width; // Taille d'une case
     for(let y = 0; y < level.height; y++){
         for(let x = 0; x < level.width; x++){
@@ -104,9 +104,13 @@ function drawLevel(ctx, images, level, character){
             }
         }
     }
-    for (const bomb of level.bombs) {
-           images["bomb"].draw(ctx, blockSize * (bomb.x + 1), blockSize * (bomb.y + 1), "fuse", Math.trunc(frame / 30));     
+    for (const expl of level.explosions) {
+           expl.draw(ctx, images["expl"], level, blockSize);     
     }
+    for (const bomb of level.bombs) {
+        images["bomb"].draw(ctx, blockSize * (bomb.x + 1), blockSize * (bomb.y + 1), "fuse", Math.trunc(frame / 30));     
+    }
+    drawCharacter(ctx, images, character);
 }
 
 //dessine le sol et les murs
@@ -136,7 +140,7 @@ function drawCharacter(ctx, images, character){
     let step = 0;
     if(character.mov > 0){
         step = Math.floor(character.mov * 4 / blockSize);
-        console.log(step);
+        //console.log(step);
     }
     switch(character.direction){
         case directions.NORTH:
@@ -180,7 +184,6 @@ function characterInput(input, player)
     }
     else if(input.isKeyDown("ArrowRight"))
     {
-        console.log("A droite !!!");
         direction = directions.EAST;
     }
     else
@@ -208,8 +211,28 @@ function updateBombs(input, level, player, actualTime)
         if(!bomb.explode(actualTime)) // On garde que les bombes n'ayant pas encore explosé
         {
             newBombArray.push(bomb);
-        }      
+        }
+        else
+        {
+            level.explosions.push(new Explosion(bomb.x, bomb.y, level, actualTime, 2));
+        }
     }
     level.bombs = newBombArray;
+}
 
+function updateExplosions(level, player, actualTime)
+{
+    let newExplArray = [];
+    for (const expl of level.explosions) {
+        if(actualTime - expl.explTime < 2000) // Les explosions restent pour 2 secondes
+        {
+            newExplArray.push(expl);
+            if(expl.inArea(player.coords))
+            {
+                console.log("Game over");
+                // TODO
+            }
+        }      
+    }
+    level.explosions = newExplArray;
 }

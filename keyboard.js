@@ -7,13 +7,11 @@ class KeyManager
 
     keyDown(name)
     {
-        console.log("Pressed " + name);
         this.keyMap[name] = true;
     }
 
     keyUp(name)
     {
-        console.log("Released " + name);
         this.keyMap[name] = false;
     }
 
