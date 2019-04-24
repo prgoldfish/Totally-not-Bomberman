@@ -1,3 +1,5 @@
+let frame = 0;
+
 window.addEventListener("load", async () => {
     let images = await loadImages();
     console.log(images);
@@ -10,7 +12,29 @@ window.addEventListener("load", async () => {
     level.init(lvl);
     player = new Character(level.playerSpawn, images["block"].width);
     drawLevel(ctx, images, level, player);
-    //TEST: revele la sortie et fait tourner le personnage après 5 secondes
+    let input = new KeyManager();
+
+    document.addEventListener("keydown", (e) => {
+        input.keyDown(e.key);
+    });
+
+    document.addEventListener("keyup", (e) => {
+        input.keyUp(e.key);
+    });
+
+    
+    function loop(time)
+    {
+        frame++; // TODO : Gérer le compteur  de FPS
+        //console.log("Loop");
+        characterInput(input, player);
+        player.update();
+
+        drawLevel(ctx, images, level, player);
+
+        requestAnimationFrame(loop);
+    }
+   /* //TEST: revele la sortie et fait tourner le personnage après 5 secondes
     window.setTimeout(() => {
         level.map[10][16].destroyed = true;
         player.turn(directions.EAST);
@@ -27,7 +51,9 @@ window.addEventListener("load", async () => {
     window.setInterval(function(){
         player.update();
         drawLevel(ctx, images, level, player);
-    }, 1000/60);
+    }, 1000/60);*/
+
+    requestAnimationFrame(loop);
 });
 
 async function loadImages() {
@@ -130,4 +156,37 @@ function drawCharacter(ctx, images, character){
             images["char"].draw(ctx, posX, posY, "west", step);
             break;
     }
+}
+
+function characterInput(input, player)
+{
+    let direction = player.direction;
+    let keyPressed = true;
+    if(input.isKeyDown("ArrowUp"))
+    {
+        direction = directions.NORTH;
+    }
+    else if(input.isKeyDown("ArrowDown"))
+    {
+        direction = directions.SOUTH;
+    }
+    else if(input.isKeyDown("ArrowLeft"))
+    {
+        direction = directions.WEST;
+    }
+    else if(input.isKeyDown("ArrowRight"))
+    {
+        console.log("A droite !!!");
+        direction = directions.EAST;
+    }
+    else
+    {
+        keyPressed = false;
+    }
+    if(keyPressed)
+    {
+        player.turn(direction);
+        player.move();
+    }
+    
 }
