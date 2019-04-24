@@ -8,6 +8,8 @@ class Character{
 		this.mov = 0;
 		// stocke la taille
 		this.size = size;
+		//Permet de faire un petit cooldown afin de pas mettre des bombes à la chaine
+		this.lastBombDate = 0;
 	}
 
 	//tourne dans une direction, ne fonctionne pas si animation en cours

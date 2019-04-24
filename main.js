@@ -28,6 +28,7 @@ window.addEventListener("load", async () => {
         frame++; // TODO : Gérer le compteur  de FPS
         //console.log("Loop");
         characterInput(input, player);
+        updateBombs(input, level, player, time);
         player.update();
 
         drawLevel(ctx, images, level, player);
@@ -102,6 +103,9 @@ function drawLevel(ctx, images, level, character){
                    break;
             }
         }
+    }
+    for (const bomb of level.bombs) {
+           images["bomb"].draw(ctx, blockSize * (bomb.x + 1), blockSize * (bomb.y + 1), "fuse", Math.trunc(frame / 30));     
     }
 }
 
@@ -188,5 +192,24 @@ function characterInput(input, player)
         player.turn(direction);
         player.move();
     }
-    
+}
+
+function updateBombs(input, level, player, actualTime)
+{
+    let timeSinceLastBomb = actualTime - player.lastBombDate;
+    if(input.isKeyDown(" ") && !level.isBombHere(player.coords) && timeSinceLastBomb > 500)
+    {
+        level.bombs.push(new Bombe(actualTime, player.coords));
+        player.lastBombDate = actualTime;
+    }
+
+    let newBombArray = [];
+    for (const bomb of level.bombs) {
+        if(!bomb.explode(actualTime)) // On garde que les bombes n'ayant pas encore explosé
+        {
+            newBombArray.push(bomb);
+        }      
+    }
+    level.bombs = newBombArray;
+
 }

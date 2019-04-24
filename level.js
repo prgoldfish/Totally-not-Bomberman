@@ -21,6 +21,7 @@ class Level{
 		this.width = 19;
 		this.height = 13;
 		this.map = [];
+		this.bombs = [];
 		for (let i = 0; i < this.height; i++) { // Imitialisation par défaut du niveau (Que de l'herbe)
 			let line = [];
 			for (let j = 0; j < this.width; j++) {
@@ -90,6 +91,17 @@ class Level{
 		return true;
 
 	}
+
+	isBombHere(coords)
+	{
+		for (const bomb of this.bombs) {
+			if(coords[0] == bomb.x && coords[1] == bomb.y)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 };
 
 class Case
@@ -108,5 +120,30 @@ let caseTypes = {
 	EXIT : 3,
 	PLAYERSPAWN : 4
 };
+
+class Bombe
+{
+	constructor(putTime, coords)
+	{
+		this.putTime = putTime;
+		this.exploded = false;
+		this.x = coords[0];
+		this.y = coords[1];
+	}
+
+	explode(actualTime)
+	{
+		let timeSincePut = actualTime - this.putTime;
+		if(!this.exploded && timeSincePut > 5000)  // 5 secondes avant explosion
+		{
+			this.explode = true;
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+}
 
 console.log(JSON.stringify(caseTypes));
