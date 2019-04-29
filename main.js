@@ -105,7 +105,7 @@ function drawLevel(ctx, images, level, character){
         }
     }
     for (const expl of level.explosions) {
-           expl.draw(ctx, images["expl"], level, blockSize);     
+        expl.draw(ctx, images["expl"], level, blockSize);     
     }
     for (const bomb of level.bombs) {
         images["bomb"].draw(ctx, blockSize * (bomb.x + 1), blockSize * (bomb.y + 1), "fuse", Math.trunc(frame / 30));     
@@ -200,6 +200,7 @@ function characterInput(input, player)
 function updateBombs(input, level, player, actualTime)
 {
     let timeSinceLastBomb = actualTime - player.lastBombDate;
+    let explDuration = 2000;
     if(input.isKeyDown(" ") && !level.isBombHere(player.coords) && timeSinceLastBomb > 500)
     {
         level.bombs.push(new Bombe(actualTime, player.coords));
@@ -214,7 +215,7 @@ function updateBombs(input, level, player, actualTime)
         }
         else
         {
-            level.explosions.push(new Explosion(bomb.x, bomb.y, level, actualTime, 2));
+            level.explosions.push(new Explosion(bomb.x, bomb.y, level, actualTime, explDuration, 2));
         }
     }
     level.bombs = newBombArray;
@@ -222,9 +223,10 @@ function updateBombs(input, level, player, actualTime)
 
 function updateExplosions(level, player, actualTime)
 {
+    let explDuration = 2000;
     let newExplArray = [];
     for (const expl of level.explosions) {
-        if(actualTime - expl.explTime < 2000) // Les explosions restent pour 2 secondes
+        if(actualTime - expl.explTime < explDuration) // Les explosions restent pour 2 secondes
         {
             newExplArray.push(expl);
             if(expl.inArea(player.coords))

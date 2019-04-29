@@ -118,6 +118,13 @@ class Case
 		this.destroyed = false;
 	}
 
+	destroy(timer)
+	{
+		window.setTimeout(() => {
+			this.destroyed = true;
+		}, timer);
+	}
+
 	canBlock()
 	{
 		switch(this.type)
@@ -174,7 +181,7 @@ class Bombe
 
 class Explosion
 {
-	constructor(x, y, level, actualTime, explSize)
+	constructor(x, y, level, actualTime, explDuration, explSize)
 	{
 		this.explArea = {
 			"North" : 0,
@@ -184,55 +191,90 @@ class Explosion
 		};
 		this.x = x;
 		this.y = y;
-		for (let i = 1; i <= explSize; i++) {
-			
-			if((this.x + i) < level.width && !level.map[y][this.x + i].canBlock())
-			{
-				this.explArea["East"]++;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		for (let i = 1; i <= explSize; i++) {
-			
-			if((this.x - i) >=0 && !level.map[y][this.x - i].canBlock())
-			{
-				this.explArea["West"]++;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		for (let i = 1; i <= explSize; i++) {
-			
-			if((this.y + i) < level.height && !level.map[this.y + i][x].canBlock())
-			{
-				this.explArea["South"]++;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		for (let i = 1; i <= explSize; i++) {
-			
-			if((this.y - i) >= 0 && !level.map[this.y - i][x].canBlock())
-			{
-				this.explArea["North"]++;
-			}
-			else
-			{
-				break;
-			}
-		}
-
 		this.explTime = actualTime;
+		for (let i = 1; i <= explSize; i++) {
+			
+			if((this.x + i) < level.width)
+			{
+				if(level.map[y][this.x + i].canBlock())
+				{
+					level.map[y][this.x + i].destroy(explDuration);
+					break;
+				}
+				else
+				{
+					this.explArea["East"]++;
+				}
+				
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		for (let i = 1; i <= explSize; i++) {
+			
+			if((this.x - i) >=0)
+			{
+				if (level.map[y][this.x - i].canBlock()) 
+				{
+					level.map[y][this.x - i].destroy(explDuration);
+					break;
+				} 
+				else 
+				{
+					this.explArea["West"]++;
+				}
+				
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		for (let i = 1; i <= explSize; i++) {
+			
+			if((this.y + i) < level.height)
+			{
+				if (level.map[this.y + i][x].canBlock()) 
+				{
+					level.map[this.y + i][x].destroy(explDuration);
+					break;
+				} 
+				else
+				{
+					this.explArea["South"]++;
+				}
+				
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		for (let i = 1; i <= explSize; i++) {
+			
+			if((this.y - i) >= 0)
+			{
+				if (level.map[this.y - i][x].canBlock())
+				{
+					level.map[this.y - i][x].destroy(explDuration);
+					break;
+				} 
+				else
+				{
+					this.explArea["North"]++;
+				}
+				
+			}
+			else
+			{
+				break;
+			}
+		}
 	}
 
 	inArea(coords)
