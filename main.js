@@ -27,7 +27,7 @@ window.addEventListener("load", async () => {
     {
         frame++; // TODO : Gérer le compteur  de FPS
         //console.log("Loop");
-        characterInput(input, player);
+        characterInput(input, level, player);
         updateBombs(input, level, player, time);
         updateExplosions(level, player, time);
         player.update();
@@ -166,25 +166,38 @@ function drawCharacter(ctx, images, character){
     }
 }
 
-function characterInput(input, player)
+function characterInput(input, level, player)
 {
     let direction = player.direction;
     let keyPressed = true;
+    let blocked = true;
     if(input.isKeyDown("ArrowUp"))
     {
         direction = directions.NORTH;
+        if(player.coords[1] - 1 >= 0){
+            blocked = level.map [player.coords[1] - 1] [player.coords[0]].canBlock();
+        }
     }
     else if(input.isKeyDown("ArrowDown"))
     {
         direction = directions.SOUTH;
+        if(player.coords[1] + 1 < level.height){
+            blocked = level.map [player.coords[1] + 1] [player.coords[0]].canBlock();
+        }
     }
     else if(input.isKeyDown("ArrowLeft"))
     {
         direction = directions.WEST;
+        if(player.coords[0] - 1 >= 0){
+            blocked = level.map[player.coords[1]][player.coords[0] - 1].canBlock();
+        }
     }
     else if(input.isKeyDown("ArrowRight"))
     {
         direction = directions.EAST;
+        if(player.coords[0] + 1 < level.width){
+            blocked = level.map[player.coords[1]][player.coords[0] + 1].canBlock();
+        }
     }
     else
     {
@@ -193,7 +206,7 @@ function characterInput(input, player)
     if(keyPressed)
     {
         player.turn(direction);
-        player.move();
+        if(!blocked) player.move();
     }
 }
 
