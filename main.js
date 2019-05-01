@@ -1,4 +1,5 @@
 let frames = 0;
+let gameStatus = 0; //0=partie en cours, 1=gagné, 2=perdu
 
 window.addEventListener("load", async () => {
     let images = await loadImages();
@@ -11,7 +12,7 @@ window.addEventListener("load", async () => {
     let level = new Level(images["block"].width);
     level.init(lvl);
     player = new Character(level.playerSpawn, images["block"].width);
-    drawLevel(ctx, images, level, player);
+    gameStatus = 0;
     let input = new KeyManager();
 
     document.addEventListener("keydown", (e) => {
@@ -25,14 +26,47 @@ window.addEventListener("load", async () => {
     
     function loop(time)
     {
-        frames++; // TODO : Gérer le compteur  de FPS
+        frames++;
         //console.log("Loop");
-        characterInput(input, level, player);
-        updateBombs(input, level, player, time);
-        updateExplosions(level, player, time);
-        player.update();
-
+        if(gameStatus == 0){
+            player.update();
+            characterInput(input, level, player);
+            updateBombs(input, level, player, time);
+            if(updateExplosions(level, player, time)){
+                //partie perdue
+                gameStatus = 2;
+            }else{
+                let playerCase = level.map[player.coords[1]][player.coords[0]];
+                if(playerCase.type == caseTypes.EXIT && playerCase.destroyed){
+                    //partie gagnée
+                    gameStatus = 1;
+                }
+            }
+        }
         drawLevel(ctx, images, level, player);
+
+        if(gameStatus == 1){
+            //affiche l'ecran de victoire
+            ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.fillStyle = "gold";
+            ctx.strokeStyle = "black";
+            ctx.font = "32px Comic Sans MS";
+            ctx.textAlign = "center";
+            ctx.fillText("YOU WIN", ctx.canvas.width/2, ctx.canvas.height/2);
+            ctx.strokeText("YOU WIN", ctx.canvas.width/2, ctx.canvas.height/2);
+        }
+        if(gameStatus == 2){
+            //affiche le Game Over
+            ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+            ctx.fillStyle = "red";
+            ctx.strokeStyle = "black";
+            ctx.font = "32px Comic Sans MS";
+            ctx.textAlign = "center";
+            ctx.fillText("GAME OVER", ctx.canvas.width/2, ctx.canvas.height/2);
+            ctx.strokeText("GAME OVER", ctx.canvas.width/2, ctx.canvas.height/2);
+        }
 
         requestAnimationFrame(loop);
     }
@@ -248,6 +282,7 @@ function updateBombs(input, level, player, actualTime)
     level.bombs = newBombArray;
 }
 
+//renvoie true si joueur touché
 function updateExplosions(level, player, actualTime)
 {
     let explDuration = 2000;
@@ -259,9 +294,10 @@ function updateExplosions(level, player, actualTime)
             if(expl.inArea(player.coords))
             {
                 console.log("Game over");
-                // TODO
+                return true;
             }
         }      
     }
     level.explosions = newExplArray;
+    return false;
 }
