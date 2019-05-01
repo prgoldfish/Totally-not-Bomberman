@@ -38,7 +38,7 @@ window.addEventListener("load", async () => {
     }
 
     window.setInterval(() => {
-        document.getElementById("fps").innerHTML = "<h1>FPS : " + frames + "</h1>";
+        document.getElementById("fpsCounter").innerHTML = "FPS : " + frames;
         frames = 0;
     }, 1000);
 
