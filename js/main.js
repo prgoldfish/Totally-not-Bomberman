@@ -2,37 +2,37 @@ let frames = 0;
 
 window.addEventListener("load", async () => {
     let images = await loadImages();
-    //console.log(images);
 	let canvas = document.getElementById("gameCanvas");
-	canvas.width = 336;
-	canvas.height = 240;
     let ctx = canvas.getContext("2d");
-    //drawBackground(ctx, images);
     let level = new Level(images["block"].width);
-    level.init(lvl);
-    player = new Character(level.playerSpawn, images["block"].width);
-    drawLevel(ctx, images, level, player);
-    let input = new KeyManager();
 
-    document.addEventListener("keydown", (e) => {
-        input.keyDown(e.key);
-    });
 
-    document.addEventListener("keyup", (e) => {
-        input.keyUp(e.key);
-    });
-
-    
-    function loop(time)
+    if(await loadLevel(level, 1, ctx))
     {
-        frames++; // TODO : Gérer le compteur  de FPS
-        //console.log("Loop");
-        characterInput(input, level, player);
-        updateBombs(input, level, player, time);
-        updateExplosions(level, player, time);
-        player.update();
-
+        player = new Character(level.playerSpawn, images["block"].width);
         drawLevel(ctx, images, level, player);
+        let input = new KeyManager();
+
+        document.addEventListener("keydown", (e) => {
+            input.keyDown(e.key);
+        });
+
+        document.addEventListener("keyup", (e) => {
+            input.keyUp(e.key);
+        });
+
+        let loop = function(time)
+        {
+            frames++;
+            characterInput(input, level, player);
+            updateBombs(input, level, player, time);
+            updateExplosions(level, player, time);
+            player.update();
+
+            drawLevel(ctx, images, level, player);
+
+            requestAnimationFrame(loop);
+        }
 
         requestAnimationFrame(loop);
     }
@@ -42,26 +42,7 @@ window.addEventListener("load", async () => {
         frames = 0;
     }, 1000);
 
-   /* //TEST: revele la sortie et fait tourner le personnage après 5 secondes
-    window.setTimeout(() => {
-        level.map[10][16].destroyed = true;
-        player.turn(directions.EAST);
-        drawLevel(ctx, images, level, player);
-        console.log(level.map);
-    }, 5000);
-    //TEST: deplace le personnage après 6 secondes
-    window.setTimeout(() => {
-        player.move();
-        drawLevel(ctx, images, level, player);
-        console.log(level.map);
-    }, 6000);
-    //TEST: met a jour le personnage a intervalles reguliers
-    window.setInterval(function(){
-        player.update();
-        drawLevel(ctx, images, level, player);
-    }, 1000/60);*/
-
-    requestAnimationFrame(loop);
+    
 });
 
 async function loadImages() {
@@ -264,4 +245,25 @@ function updateExplosions(level, player, actualTime)
         }      
     }
     level.explosions = newExplArray;
+}
+
+async function loadLevel(level, lvlNumber, ctx)
+{
+    try
+    {
+        await level.init("" + lvlNumber);
+    }
+    catch(err)
+    {
+        ctx.fillStyle = "red";
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.fillText("Erreur lors du chargement du niveau", ctx.canvas.width / 2, ctx.canvas.height / 2);
+        alert("Erreur lors du chargement du niveau : " + err);
+        return false;
+
+    }
+    return true;
 }

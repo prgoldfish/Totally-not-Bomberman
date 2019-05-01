@@ -35,23 +35,51 @@ class Level{
 
 	init(lvlName)
 	{
-		//Requete HTTP avec le nom du niveau (A faire plus tard)
-		if(!Level.checkLevel(lvl))
-		{
-			console.log("NIVEAU INVALIDE");
-			return;
-		}
-		for (const coord of lvl.Boxes) 
-		{
-			this.putOnMap(coord, caseTypes.BOX)
-		}
-		for (const coord of lvl.Blocks) 
-		{
-			this.putOnMap(coord, caseTypes.BLOCK);
-		}
-		this.putOnMap(lvl.Exit, caseTypes.EXIT);
-		this.putOnMap(lvl.PlayerSpawn, caseTypes.PLAYERSPAWN);
-		this.playerSpawn = lvl.PlayerSpawn;
+		return new Promise((success, fail) => {
+			let req = new XMLHttpRequest();
+			req.addEventListener("readystatechange", (ev) => {
+				if(req.readyState == req.DONE)
+				{
+					if(req.status == 200)
+					{
+						let lvl = JSON.parse(req.responseText);
+						if(!Level.checkLevel(lvl))
+						{
+							fail("Niveau invalide");
+							return;
+						}
+						for (const coord of lvl.Boxes) 
+						{
+							this.putOnMap(coord, caseTypes.BOX)
+						}
+						for (const coord of lvl.Blocks) 
+						{
+							this.putOnMap(coord, caseTypes.BLOCK);
+						}
+						this.putOnMap(lvl.Exit, caseTypes.EXIT);
+						this.putOnMap(lvl.PlayerSpawn, caseTypes.PLAYERSPAWN);
+						this.playerSpawn = lvl.PlayerSpawn;
+						success();
+					}
+					else
+					{
+						let errorText;
+						if(req.status == 0)
+						{
+							errorText = "La page web doit-être chargée via le serveur et non directement."
+						}
+						else
+						{
+							errorText = "Erreur " + req.status + " " + req.statusText;
+						}
+						
+						fail(errorText);
+					}
+				}
+			});
+			req.open("GET", "level?lvl=" + lvlName, true);
+			req.send();
+		});
 	}
 
 	putOnMap(coords, typeCase)
