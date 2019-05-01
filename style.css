@@ -4,12 +4,6 @@ body {
 	font-family: "Comic Sans MS", cursive, sans-serif;
 }
 
-#fps
-{
-	float: left;
-	position: absolute;
-}
-
 #gameCanvas 
 {
 	display: block;
@@ -19,6 +13,16 @@ body {
 	image-rendering: -moz-crisp-edges;
 	image-rendering: crisp-edges;
 	image-rendering: pixelated;
+}
+
+.Fps{
+	width: 100vmin;
+	margin: auto;
+}
+
+#fpsCounter{
+	background: yellow;
+	border: 1px solid red;
 }
 
 #title
