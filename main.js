@@ -175,28 +175,36 @@ function characterInput(input, level, player)
     {
         direction = directions.NORTH;
         if(player.coords[1] - 1 >= 0){
+            let newCoords = [player.coords[0], player.coords[1] - 1];
             blocked = level.map [player.coords[1] - 1] [player.coords[0]].canBlock();
+            blocked = blocked || level.isBombHere(newCoords);
         }
     }
     else if(input.isKeyDown("ArrowDown"))
     {
         direction = directions.SOUTH;
         if(player.coords[1] + 1 < level.height){
+            let newCoords = [player.coords[0], player.coords[1] + 1];
             blocked = level.map [player.coords[1] + 1] [player.coords[0]].canBlock();
+            blocked = blocked || level.isBombHere(newCoords);
         }
     }
     else if(input.isKeyDown("ArrowLeft"))
     {
         direction = directions.WEST;
         if(player.coords[0] - 1 >= 0){
+            let newCoords = [player.coords[0] - 1, player.coords[1]];
             blocked = level.map[player.coords[1]][player.coords[0] - 1].canBlock();
+            blocked = blocked || level.isBombHere(newCoords);
         }
     }
     else if(input.isKeyDown("ArrowRight"))
     {
         direction = directions.EAST;
         if(player.coords[0] + 1 < level.width){
+            let newCoords = [player.coords[0] + 1, player.coords[1]];
             blocked = level.map[player.coords[1]][player.coords[0] + 1].canBlock();
+            blocked = blocked || level.isBombHere(newCoords);
         }
     }
     else
