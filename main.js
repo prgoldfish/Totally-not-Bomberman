@@ -1,4 +1,4 @@
-let frame = 0;
+let frames = 0;
 
 window.addEventListener("load", async () => {
     let images = await loadImages();
@@ -25,7 +25,7 @@ window.addEventListener("load", async () => {
     
     function loop(time)
     {
-        frame++; // TODO : Gérer le compteur  de FPS
+        frames++; // TODO : Gérer le compteur  de FPS
         //console.log("Loop");
         characterInput(input, level, player);
         updateBombs(input, level, player, time);
@@ -36,6 +36,12 @@ window.addEventListener("load", async () => {
 
         requestAnimationFrame(loop);
     }
+
+    window.setInterval(() => {
+        document.getElementById("fps").innerHTML = "<h1>FPS : " + frames + "</h1>";
+        frames = 0;
+    }, 1000);
+
    /* //TEST: revele la sortie et fait tourner le personnage après 5 secondes
     window.setTimeout(() => {
         level.map[10][16].destroyed = true;
@@ -108,7 +114,7 @@ function drawLevel(ctx, images, level, character){
         expl.draw(ctx, images["expl"], level, blockSize);     
     }
     for (const bomb of level.bombs) {
-        images["bomb"].draw(ctx, blockSize * (bomb.x + 1), blockSize * (bomb.y + 1), "fuse", Math.trunc(frame / 30));     
+        images["bomb"].draw(ctx, blockSize * (bomb.x + 1), blockSize * (bomb.y + 1), "fuse", Math.trunc(frames / 30));     
     }
     drawCharacter(ctx, images, character);
 }
@@ -230,9 +236,9 @@ function updateBombs(input, level, player, actualTime)
 
     let newBombArray = [];
     for (const bomb of level.bombs) {
-        if(!bomb.explode(actualTime)) // On garde que les bombes n'ayant pas encore explosé
+        if(!bomb.explode(actualTime)) 
         {
-            newBombArray.push(bomb);
+            newBombArray.push(bomb); // On garde que les bombes n'ayant pas encore explosé
         }
         else
         {

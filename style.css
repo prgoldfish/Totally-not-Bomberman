@@ -4,6 +4,12 @@ body {
 	font-family: "Comic Sans MS", cursive, sans-serif;
 }
 
+#fps
+{
+	float: left;
+	position: absolute;
+}
+
 #gameCanvas 
 {
 	display: block;
