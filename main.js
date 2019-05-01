@@ -148,7 +148,16 @@ function drawLevel(ctx, images, level, character){
         expl.draw(ctx, images["expl"], level, blockSize);     
     }
     for (const bomb of level.bombs) {
-        images["bomb"].draw(ctx, blockSize * (bomb.x + 1), blockSize * (bomb.y + 1), "fuse", Math.trunc(frames / 30));     
+        //calcul du clignotement
+        let flash = 0;
+        if(bomb.timeSincePut >= 2500){
+            //flash = Math.trunc(frames / 30);
+            flash = Math.floor(bomb.timeSincePut/250 + 1) % 2;
+        }
+        if(bomb.timeSincePut >= 4000){
+            flash = frames % 2;
+        }
+        images["bomb"].draw(ctx, blockSize * (bomb.x + 1), blockSize * (bomb.y + 1), "fuse", flash);
     }
     drawCharacter(ctx, images, character);
 }
@@ -261,7 +270,7 @@ function characterInput(input, level, player)
 function updateBombs(input, level, player, actualTime)
 {
     let timeSinceLastBomb = actualTime - player.lastBombDate;
-    let explDuration = 2000;
+    let explDuration = 1000;
     if(input.isKeyDown(" ") && !level.isBombHere(player.coords) && timeSinceLastBomb > 500)
     {
         level.bombs.push(new Bombe(actualTime, player.coords));
@@ -285,10 +294,10 @@ function updateBombs(input, level, player, actualTime)
 //renvoie true si joueur touché
 function updateExplosions(level, player, actualTime)
 {
-    let explDuration = 2000;
+    let explDuration = 1000;
     let newExplArray = [];
     for (const expl of level.explosions) {
-        if(actualTime - expl.explTime < explDuration) // Les explosions restent pour 2 secondes
+        if(actualTime - expl.explTime < explDuration) // Les explosions restent pour 1 seconde
         {
             newExplArray.push(expl);
             if(expl.inArea(player.coords))

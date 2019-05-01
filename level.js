@@ -120,9 +120,14 @@ class Case
 
 	destroy(timer)
 	{
-		window.setTimeout(() => {
-			this.destroyed = true;
-		}, timer);
+		if(this.type == caseTypes.BOX || this.type == caseTypes.EXIT){
+			window.setTimeout(() => {
+				this.destroyed = true;
+			}, timer);
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 	canBlock()
@@ -159,6 +164,7 @@ class Bombe
 	constructor(putTime, coords)
 	{
 		this.putTime = putTime;
+		this.timeSincePut = 0;
 		this.exploded = false;
 		this.x = coords[0];
 		this.y = coords[1];
@@ -166,8 +172,8 @@ class Bombe
 
 	explode(actualTime)
 	{
-		let timeSincePut = actualTime - this.putTime;
-		if(!this.exploded && timeSincePut > 5000)  // 5 secondes avant explosion
+		this.timeSincePut = actualTime - this.putTime;
+		if(!this.exploded && this.timeSincePut >= 5000)  // explose au bout de 5 secandes
 		{
 			this.explode = true;
 			return true;
@@ -198,7 +204,9 @@ class Explosion
 			{
 				if(level.map[y][this.x + i].canBlock())
 				{
-					level.map[y][this.x + i].destroy(explDuration);
+					if(level.map[y][this.x + i].destroy(explDuration)){
+						this.explArea["East"]++;
+					}
 					break;
 				}
 				else
@@ -219,7 +227,9 @@ class Explosion
 			{
 				if (level.map[y][this.x - i].canBlock()) 
 				{
-					level.map[y][this.x - i].destroy(explDuration);
+					if(level.map[y][this.x - i].destroy(explDuration)){
+						this.explArea["West"]++;
+					}
 					break;
 				} 
 				else 
@@ -240,7 +250,9 @@ class Explosion
 			{
 				if (level.map[this.y + i][x].canBlock()) 
 				{
-					level.map[this.y + i][x].destroy(explDuration);
+					if(level.map[this.y + i][x].destroy(explDuration)){
+						this.explArea["South"]++;
+					}
 					break;
 				} 
 				else
@@ -261,7 +273,9 @@ class Explosion
 			{
 				if (level.map[this.y - i][x].canBlock())
 				{
-					level.map[this.y - i][x].destroy(explDuration);
+					if(level.map[this.y - i][x].destroy(explDuration)){
+						this.explArea["North"]++;
+					}
 					break;
 				} 
 				else
