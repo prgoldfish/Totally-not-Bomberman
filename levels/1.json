@@ -1,7 +1,4 @@
-// Dit a vscode de mettre le format du fichier en texte pour 
-// désactiver l'affichage d'erreur pour ce fichier
-// (Dans la barre du bas)
-let lvl = {
+{
     "Boxes" : [
         [3, 0],        
         [3, 2],        

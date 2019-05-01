@@ -3,69 +3,70 @@ let gameStatus = 0; //0=partie en cours, 1=gagné, 2=perdu
 
 window.addEventListener("load", async () => {
     let images = await loadImages();
-    //console.log(images);
 	let canvas = document.getElementById("gameCanvas");
-	canvas.width = 336;
-	canvas.height = 240;
     let ctx = canvas.getContext("2d");
-    //drawBackground(ctx, images);
     let level = new Level(images["block"].width);
-    level.init(lvl);
-    player = new Character(level.playerSpawn, images["block"].width);
-    gameStatus = 0;
-    let input = new KeyManager();
 
-    document.addEventListener("keydown", (e) => {
-        input.keyDown(e.key);
-    });
 
-    document.addEventListener("keyup", (e) => {
-        input.keyUp(e.key);
-    });
-
-    
-    function loop(time)
+    if(await loadLevel(level, 1, ctx))
     {
-        frames++;
-        //console.log("Loop");
-        if(gameStatus == 0){
-            player.update();
-            characterInput(input, level, player);
-            updateBombs(input, level, player, time);
-            if(updateExplosions(level, player, time)){
-                //partie perdue
-                gameStatus = 2;
-            }else{
-                let playerCase = level.map[player.coords[1]][player.coords[0]];
-                if(playerCase.type == caseTypes.EXIT && playerCase.destroyed){
-                    //partie gagnée
-                    gameStatus = 1;
+        player = new Character(level.playerSpawn, images["block"].width);
+        gameStatus = 0;
+        let input = new KeyManager();
+
+        document.addEventListener("keydown", (e) => {
+            input.keyDown(e.key);
+        });
+
+        document.addEventListener("keyup", (e) => {
+            input.keyUp(e.key);
+        });
+
+        let loop = function(time)
+        {
+            frames++;
+            if(gameStatus == 0){
+                player.update();
+                characterInput(input, level, player);
+                updateBombs(input, level, player, time);
+                if(updateExplosions(level, player, time)){
+                    //partie perdue
+                    gameStatus = 2;
+                }else{
+                    let playerCase = level.map[player.coords[1]][player.coords[0]];
+                    if(playerCase.type == caseTypes.EXIT && playerCase.destroyed){
+                        //partie gagnée
+                        gameStatus = 1;
+                    }
                 }
             }
-        }
-        drawLevel(ctx, images, level, player);
 
-        if(gameStatus == 1){
-            //affiche l'ecran de victoire
-            ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
-            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            ctx.fillStyle = "gold";
-            ctx.strokeStyle = "black";
-            ctx.font = "32px Comic Sans MS";
-            ctx.textAlign = "center";
-            ctx.fillText("YOU WIN", ctx.canvas.width/2, ctx.canvas.height/2);
-            ctx.strokeText("YOU WIN", ctx.canvas.width/2, ctx.canvas.height/2);
-        }
-        if(gameStatus == 2){
-            //affiche le Game Over
-            ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-            ctx.fillStyle = "red";
-            ctx.strokeStyle = "black";
-            ctx.font = "32px Comic Sans MS";
-            ctx.textAlign = "center";
-            ctx.fillText("GAME OVER", ctx.canvas.width/2, ctx.canvas.height/2);
-            ctx.strokeText("GAME OVER", ctx.canvas.width/2, ctx.canvas.height/2);
+            drawLevel(ctx, images, level, player);
+
+            if(gameStatus == 1){
+                //affiche l'ecran de victoire
+                ctx.fillStyle = "rgba(0, 255, 0, 0.5)";
+                ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.fillStyle = "gold";
+                ctx.strokeStyle = "black";
+                ctx.font = "32px Comic Sans MS";
+                ctx.textAlign = "center";
+                ctx.fillText("YOU WIN", ctx.canvas.width/2, ctx.canvas.height/2);
+                ctx.strokeText("YOU WIN", ctx.canvas.width/2, ctx.canvas.height/2);
+            }
+            if(gameStatus == 2){
+                //affiche le Game Over
+                ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+                ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.fillStyle = "red";
+                ctx.strokeStyle = "black";
+                ctx.font = "32px Comic Sans MS";
+                ctx.textAlign = "center";
+                ctx.fillText("GAME OVER", ctx.canvas.width/2, ctx.canvas.height/2);
+                ctx.strokeText("GAME OVER", ctx.canvas.width/2, ctx.canvas.height/2);
+            }
+
+            requestAnimationFrame(loop);
         }
 
         requestAnimationFrame(loop);
@@ -76,26 +77,7 @@ window.addEventListener("load", async () => {
         frames = 0;
     }, 1000);
 
-   /* //TEST: revele la sortie et fait tourner le personnage après 5 secondes
-    window.setTimeout(() => {
-        level.map[10][16].destroyed = true;
-        player.turn(directions.EAST);
-        drawLevel(ctx, images, level, player);
-        console.log(level.map);
-    }, 5000);
-    //TEST: deplace le personnage après 6 secondes
-    window.setTimeout(() => {
-        player.move();
-        drawLevel(ctx, images, level, player);
-        console.log(level.map);
-    }, 6000);
-    //TEST: met a jour le personnage a intervalles reguliers
-    window.setInterval(function(){
-        player.update();
-        drawLevel(ctx, images, level, player);
-    }, 1000/60);*/
-
-    requestAnimationFrame(loop);
+    
 });
 
 async function loadImages() {
@@ -309,4 +291,25 @@ function updateExplosions(level, player, actualTime)
     }
     level.explosions = newExplArray;
     return false;
+}
+
+async function loadLevel(level, lvlNumber, ctx)
+{
+    try
+    {
+        await level.init("" + lvlNumber);
+    }
+    catch(err)
+    {
+        ctx.fillStyle = "red";
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "black";
+        ctx.textAlign = "center";
+        ctx.fillText("Erreur lors du chargement du niveau", ctx.canvas.width / 2, ctx.canvas.height / 2);
+        alert("Erreur lors du chargement du niveau : " + err);
+        return false;
+
+    }
+    return true;
 }
