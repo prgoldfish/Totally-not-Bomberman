@@ -144,11 +144,13 @@ class Case
 	{
 		this.type = typeCase;
 		this.destroyed = false;
+		this.exploding = false;
 	}
 
 	destroy(timer)
 	{
 		if(this.type == caseTypes.BOX || this.type == caseTypes.EXIT){
+			this.exploding = true;
 			window.setTimeout(() => {
 				this.destroyed = true;
 			}, timer);
@@ -232,9 +234,7 @@ class Explosion
 			{
 				if(level.map[y][this.x + i].canBlock())
 				{
-					if(level.map[y][this.x + i].destroy(explDuration)){
-						this.explArea["East"]++;
-					}
+					level.map[y][this.x + i].destroy(explDuration);
 					break;
 				}
 				else
@@ -255,9 +255,7 @@ class Explosion
 			{
 				if (level.map[y][this.x - i].canBlock()) 
 				{
-					if(level.map[y][this.x - i].destroy(explDuration)){
-						this.explArea["West"]++;
-					}
+					level.map[y][this.x - i].destroy(explDuration);
 					break;
 				} 
 				else 
@@ -278,9 +276,7 @@ class Explosion
 			{
 				if (level.map[this.y + i][x].canBlock()) 
 				{
-					if(level.map[this.y + i][x].destroy(explDuration)){
-						this.explArea["South"]++;
-					}
+					level.map[this.y + i][x].destroy(explDuration);
 					break;
 				} 
 				else
@@ -301,9 +297,7 @@ class Explosion
 			{
 				if (level.map[this.y - i][x].canBlock())
 				{
-					if(level.map[this.y - i][x].destroy(explDuration)){
-						this.explArea["North"]++;
-					}
+					level.map[this.y - i][x].destroy(explDuration)
 					break;
 				} 
 				else

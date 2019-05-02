@@ -84,7 +84,7 @@ async function loadImages() {
     return {
         block : await loadImageToCanvas("block"),
         bomb : await loadBomb(),
-        box : await loadImageToCanvas("box"),
+        box : await loadBox(),
         char : await loadCharacter(),
         expl : await loadExplosions(),
         ground : await loadImageToCanvas("ground"),
@@ -105,22 +105,30 @@ function drawLevel(ctx, images, level, character){
             let lvlCase = level.map[y][x];
             switch (lvlCase.type){
                 case caseTypes.BOX:
-                    if(!lvlCase.destroyed)
+                    if(lvlCase.exploding && !lvlCase.destroyed)
                     {
-                        ctx.drawImage(images["box"], posX, posY, blockSize, blockSize);
+                       images["box"].draw(ctx, posX, posY, "exploding", 0);
+                    }
+                    else if(!lvlCase.destroyed)
+                    {
+                        images["box"].draw(ctx, posX, posY, "base", 0);
                     }
                     break;
                 case caseTypes.BLOCK:
                     ctx.drawImage(images["block"], posX, posY, blockSize, blockSize);
                     break;
                 case caseTypes.EXIT:
-                    if(!lvlCase.destroyed)
+                    if(lvlCase.exploding && !lvlCase.destroyed)
                     {
-                        ctx.drawImage(images["box"], posX, posY, blockSize, blockSize);
+                        images["box"].draw(ctx, posX, posY, "exploding", 0);
+                    }
+                    else if(lvlCase.destroyed)
+                    {
+                        ctx.drawImage(images["stairs"], posX, posY, blockSize, blockSize);
                     }
                     else
                     {
-                        ctx.drawImage(images["stairs"], posX, posY, blockSize, blockSize);
+                        images["box"].draw(ctx, posX, posY, "base", 0);
                     }
                    break;
             }

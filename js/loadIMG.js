@@ -94,3 +94,14 @@ async function loadExplosions()
     }
     return new Sprite(frames);
 }
+
+async function loadBox()
+{
+    let cnv = await loadImageToCanvas("box");
+    let cnvList = splitFrames(cnv, 16, 16);
+    let frames = {
+        base : [cnvList[0]],
+        exploding : [cnvList[1]]
+    }
+    return new Sprite(frames);
+}
