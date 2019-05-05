@@ -4,7 +4,7 @@
 const path = require("path");
 const fs = require("fs");
 
-const MIME_TYPES = {
+const MIME_TYPES = { // Gestion des différentes extensions lors de l'envoi de fichiers
     ".htm" : "text/html",
     ".html" : "text/html",
     ".css" : "text/css",
@@ -17,7 +17,7 @@ const MIME_TYPES = {
     ".gif" : "image/gif"
 };  
 
-function http_error(req, resp, code, msg)
+function http_error(req, resp, code, msg) // Renvoie une erreur HTTP
 {
     resp.statusCode = code;
     resp.setHeader("Content-Type", "text/html");
@@ -37,7 +37,7 @@ function error_403(req, resp) {
     http_error(req, resp, 403, "Permission denied");
 }
 
-function error_418(req, resp) {
+function error_418(req, resp) { // Indispensable
     http_error(req, resp, 418, "I'm a teapot");
 }
 
@@ -45,40 +45,14 @@ function error_500(req, resp, msg) {
     http_error(req, resp, 500, msg);
 }
 
-function send_level(req, resp, lvlNumber)
+function send_level(req, resp, lvlNumber) // Envoie un niveau au format JSON
 {
-    let p = path.join("./levels/", lvlNumber + ".json");
-    fs.readFile(p, (err, buffer) => {
-        if(err)
-        {
-            switch (err.code) {
-                case "ENOENT":
-                    error_404(req, resp);                    
-                    break;
-                
-                case "EACCESS":
-                    error_403(req, resp);                    
-                    break;
-                
-                default:
-                    error_500(req, resp, err.toString());
-                    break;
-            }
-        }
-        else
-        {
-            resp.statusCode = 200;
-            resp.setHeader("Content-Type", "application/json");
-            resp.write(buffer.toString());
-            resp.end();
-        }
-    });
-
+    serve_static_file(req, resp, "./levels/", lvlNumber + ".json")
 }
 
-function serve_static_file(req, resp, base, file) {
+function serve_static_file(req, resp, base, file) { // Envoie un fichier
     let p = path.join(base, file);
-    fs.readFile(p, (err, buffer) => {
+    fs.readFile(p, (err, buffer) => { // On lit le fichier
         if(err)
         {
             switch (err.code) {
@@ -97,7 +71,7 @@ function serve_static_file(req, resp, base, file) {
         }
         else
         {
-            let ext = path.extname(p);
+            let ext = path.extname(p); // Détermination du header en fonction de l'extension du fichier
             let cType = MIME_TYPES.hasOwnProperty(ext) ? MIME_TYPES[ext] : "application/octet-stream";
             resp.statusCode = 200;
             resp.setHeader("Content-Type", cType);

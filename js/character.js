@@ -55,6 +55,7 @@ class Character{
 	}
 }
 
+// Les différentes directions possibles
 let directions = {
 	NORTH : 0,
 	EAST : 1,
