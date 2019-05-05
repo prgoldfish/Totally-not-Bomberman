@@ -160,7 +160,7 @@ function drawLevel(ctx, images, level, character)
         {
             flash = Math.floor(bomb.timeSincePut / 250 + 1) % 2;
         }
-        else if(bomb.timeSincePut >= 4000)
+        if(bomb.timeSincePut >= 4000)
         {
             flash = frames % 2;
         }
